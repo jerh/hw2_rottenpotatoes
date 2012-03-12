@@ -9,12 +9,18 @@ class MoviesController < ApplicationController
   end
 
   def index
+    setup_ratings
     if SORTABLE_COLUMN.include? params[:sort]
       sort_column = params[:sort]
     else
       sort_column = 'title'
     end
-    @movies = Movie.order sort_column
+
+    if params[:ratings] #user filter
+      @movies = Movie.where(:rating => params[:ratings].keys).order sort_column
+    else
+      @movies = Movie.order sort_column
+    end
   end
 
   def new
@@ -43,6 +49,14 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+
+  def setup_ratings
+    ratings = Movie.all_ratings
+    @all_ratings = {}
+    ratings.each do |rating|
+      @all_ratings[rating] = params[:ratings]? params[:ratings][rating] : nil
+    end
   end
 
 end
