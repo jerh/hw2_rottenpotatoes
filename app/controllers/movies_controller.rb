@@ -1,5 +1,7 @@
 class MoviesController < ApplicationController
 
+  SORTABLE_COLUMN = ['title', 'release_date']
+
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
@@ -7,7 +9,12 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    if SORTABLE_COLUMN.include? params[:sort]
+      sort_column = params[:sort]
+    else
+      sort_column = 'title'
+    end
+    @movies = Movie.order sort_column
   end
 
   def new
